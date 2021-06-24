@@ -1,5 +1,8 @@
+import 'package:bi_whitenoise/pages/player.dart';
 import 'package:flutter/material.dart';
+import 'package:get/route_manager.dart';
 import 'package:lottie/lottie.dart';
+import 'package:bi_whitenoise/data/color.dart';
 
 class StartPage extends StatefulWidget {
   @override
@@ -11,7 +14,7 @@ class _StartPageState extends State<StartPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-          color: Colors.black87,
+          color: ColorData.bgColor,
           child: Center(
             child: Column(
               children: <Widget>[
@@ -30,8 +33,12 @@ class _StartPageState extends State<StartPage> {
                   height: 50,
                 ),
                 Container(
-                  child: Text('whitenoise',
-                      style: TextStyle(color: Colors.white, fontSize: 20)),
+                  child: Text('WhiteNoise',
+                      style: TextStyle(color: Colors.white,
+                  fontFamily: 'MontserratExtraBold',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20.0,
+                ),),
                 ),
 
                 SizedBox(
@@ -42,7 +49,9 @@ class _StartPageState extends State<StartPage> {
                   child: InkWell(
                     child:
                         Lottie.asset("assets/lottie/play-button-on-hover.json"),
-                    onTap: () {},
+                    onTap: () {
+                      Get.to(()=>PlayerPage());
+                    },
                   ),
                 ),
                 // ),

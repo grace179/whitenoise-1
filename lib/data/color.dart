@@ -7,6 +7,8 @@ class ColorData {
 
   static const bgColor = const Color(0xFF20263F);
 
+  static const bg = const Color(0xFF2D325A);
+
   static const bgFocusColor = const Color(0xFF12192B);
 
   static const fontWhiteColor = const Color(0xFFFFFFFF);
