@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:audio_session/audio_session.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:noise_meter/noise_meter.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:bi_whitenoise/data/color.dart';
 
@@ -15,7 +17,15 @@ class PlayerPage extends StatefulWidget {
 }
 
 class _PlayerPageState extends State<PlayerPage> {
+  // noise
+  bool _isRecording = false;
+  StreamSubscription<NoiseReading>? _noiseSubscription;
+  late NoiseMeter _noiseMeter;
+  double noiseValue = 0.0;
+//
+
   late AudioPlayer _player;
+
   final _playlist = ConcatenatingAudioSource(children: [
     ClippingAudioSource(
       start: Duration(seconds: 60),
@@ -80,6 +90,7 @@ class _PlayerPageState extends State<PlayerPage> {
   void initState() {
     super.initState();
     _player = AudioPlayer();
+    _noiseMeter = new NoiseMeter(onError);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.black,
     ));
@@ -105,8 +116,62 @@ class _PlayerPageState extends State<PlayerPage> {
   @override
   void dispose() {
     _player.dispose();
+    _noiseSubscription?.cancel();
     super.dispose();
   }
+// noise
+
+  void onData(NoiseReading noiseReading) {
+    this.setState(() {
+      if (!this._isRecording) {
+        this._isRecording = true;
+      }
+    });
+    noiseValue = noiseReading.meanDecibel;
+
+    print(noiseReading.toString());
+  }
+
+  void onError(PlatformException e) {
+    print(e.toString());
+    _isRecording = false;
+  }
+
+  void start() async {
+    try {
+      _noiseSubscription = _noiseMeter.noiseStream.listen(onData);
+    } catch (err) {
+      print(err);
+    }
+  }
+
+  void stop() async {
+    try {
+      if (_noiseSubscription != null) {
+        _noiseSubscription!.cancel();
+        _noiseSubscription = null;
+      }
+      this.setState(() {
+        this._isRecording = false;
+      });
+    } catch (err) {
+      print('stopRecorder error: $err');
+    }
+  }
+
+  List<Widget> getContent() => <Widget>[
+        Container(
+            margin: EdgeInsets.all(25),
+            child: Column(children: [
+              Container(
+                child: Text(_isRecording ? "Mic: ON" : "Mic: OFF",
+                    style: TextStyle(fontSize: 25, color: Colors.blue)),
+                margin: EdgeInsets.only(top: 20),
+              )
+            ])),
+      ];
+
+  //
 
   final ScrollController _scrollController = ScrollController();
 
@@ -193,6 +258,7 @@ class _PlayerPageState extends State<PlayerPage> {
                                 return customListTile(
                                   title: sequence[i].tag.title as String,
                                   cover: sequence[i].tag.artwork,
+                                  desc: sequence[i].tag.album,
                                   color: i == state!.currentIndex
                                       ? ColorData.bgFocusColor
                                       : ColorData.bgColor,
@@ -212,54 +278,83 @@ class _PlayerPageState extends State<PlayerPage> {
               ),
 
               // Seek Bar slider
-              StreamBuilder<Duration?>(
-                stream: _player.durationStream,
-                builder: (context, snapshot) {
-                  final duration = snapshot.data ?? Duration.zero;
-                  return StreamBuilder<PositionData>(
-                    stream: Rx.combineLatest2<Duration, Duration, PositionData>(
-                        _player.positionStream,
-                        _player.bufferedPositionStream,
-                        (position, bufferedPosition) =>
-                            PositionData(position, bufferedPosition)),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  StreamBuilder<Duration?>(
+                    stream: _player.durationStream,
                     builder: (context, snapshot) {
-                      final positionData = snapshot.data ??
-                          PositionData(Duration.zero, Duration.zero);
-                      var position = positionData.position;
-                      if (position > duration) {
-                        position = duration;
-                      }
-                      var bufferedPosition = positionData.bufferedPosition;
-                      if (bufferedPosition > duration) {
-                        bufferedPosition = duration;
-                      }
-                      return SeekBar(
-                        duration: duration,
-                        position: position,
-                        bufferedPosition: bufferedPosition,
-                        onChangeEnd: (newPosition) {
-                          _player.seek(newPosition);
+                      final duration = snapshot.data ?? Duration.zero;
+                      return StreamBuilder<PositionData>(
+                        stream:
+                            Rx.combineLatest2<Duration, Duration, PositionData>(
+                                _player.positionStream,
+                                _player.bufferedPositionStream,
+                                (position, bufferedPosition) =>
+                                    PositionData(position, bufferedPosition)),
+                        builder: (context, snapshot) {
+                          final positionData = snapshot.data ??
+                              PositionData(Duration.zero, Duration.zero);
+                          var position = positionData.position;
+                          if (position > duration) {
+                            position = duration;
+                          }
+                          var bufferedPosition = positionData.bufferedPosition;
+                          if (bufferedPosition > duration) {
+                            bufferedPosition = duration;
+                          }
+                          return SeekBar(
+                            duration: duration,
+                            position: position,
+                            bufferedPosition: bufferedPosition,
+                            onChangeEnd: (newPosition) {
+                              _player.seek(newPosition);
+                            },
+                          );
                         },
                       );
                     },
-                  );
-                },
-              ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ControlButtons(_player),
+                    ],
+                  ),
+                  InkWell(
+                    onTap: () {
+                      _isRecording ? stop() : start();
+                    },
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ControlButtons(_player),
-                  
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        Container(
+                          height: 60,
+                          width: 60,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50.0),
+                            image: DecorationImage(
+                              image: AssetImage('assets/violetColorBtn.png'),
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          noiseValue.toInt().toString(),
+                          textAlign: TextAlign.center,
+                        )
+                      ],
+                    ),
+                    // IconButton(icon: Image.asset('assets/violetColorBtn.png'),iconSize: 20, onPressed: (){
+
+                    // ElevatedButton(child: Text('noise'),onPressed: (){}, ),
+                  ),
                 ],
               ),
-
-              SizedBox(height: 8.0),
             ],
           ),
         ),
-        
-        
       ),
     );
   }
@@ -276,7 +371,6 @@ class ControlButtons extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        
         StreamBuilder<SequenceState?>(
           stream: player.sequenceStateStream,
           builder: (context, snapshot) => IconButton(
@@ -344,8 +438,6 @@ class ControlButtons extends StatelessWidget {
             onPressed: player.hasNext ? player.seekToNext : null,
           ),
         ),
-        
-        
       ],
     );
   }
@@ -377,7 +469,6 @@ class _SeekBarState extends State<SeekBar> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
     _sliderThemeData = SliderTheme.of(context).copyWith(
       trackHeight: 2.0,
     );
@@ -419,6 +510,8 @@ class _SeekBarState extends State<SeekBar> {
           data: _sliderThemeData.copyWith(
             // inactiveTrackColor: Colors.transparent,
             inactiveTrackColor: ColorData.fontDarkColor,
+            trackHeight: 4.0,
+            thumbShape: RoundSliderThumbShape(enabledThumbRadius: 0.0),
           ),
           child: Slider(
             activeColor: ColorData.primaryStrongColor,
@@ -537,4 +630,4 @@ class PositionData {
   final Duration bufferedPosition;
 
   PositionData(this.position, this.bufferedPosition);
-}                                                                                                                                                              
+}

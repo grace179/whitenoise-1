@@ -3,6 +3,13 @@
     "titleBar.activeBackground": "#6854FF",
     "titleBar.inactiveBackground": "#6854FF"
   },
+
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[javascript, dart]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "tabout.disableByDefault": true,
+  
   "workbench.editorAssociations": [
   
   ]

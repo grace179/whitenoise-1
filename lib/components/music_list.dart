@@ -27,9 +27,11 @@ Widget customListTile(
             width: 10.0,
           ),
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
+                
                 textAlign: TextAlign.left,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
@@ -47,11 +49,13 @@ Widget customListTile(
               Text(
                 desc,
                 overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.left,
 
-                style: TextStyle(color: Colors.grey, fontSize: 14.0,
-                
+                style: TextStyle(
+                  color: Colors.grey, fontSize: 14.0,
                   fontWeight: FontWeight.w500,
-                  fontFamily: 'Segoe',),
+                  fontFamily: 'Segoe',
+                  ),
               ),
             ],
           )
