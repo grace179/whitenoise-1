@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:bi_whitenoise/components/category_btn.dart';
 import 'package:bi_whitenoise/components/music_list.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class _PlayerPageState extends State<PlayerPage> {
   StreamSubscription<NoiseReading>? _noiseSubscription;
   late NoiseMeter _noiseMeter;
   double noiseValue = 0.0;
+
 //
 
   late AudioPlayer _player;
@@ -128,7 +130,7 @@ class _PlayerPageState extends State<PlayerPage> {
       }
     });
     noiseValue = noiseReading.meanDecibel;
-
+    volumeAutoControl();
     print(noiseReading.toString());
   }
 
@@ -138,6 +140,18 @@ class _PlayerPageState extends State<PlayerPage> {
   }
 
   void start() async {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(25))),
+      width: 150,
+      content: Text(
+        'noise on',
+        textAlign: TextAlign.center,
+      ),
+      duration: Duration(seconds: 1),
+    ));
+
     try {
       _noiseSubscription = _noiseMeter.noiseStream.listen(onData);
     } catch (err) {
@@ -146,6 +160,18 @@ class _PlayerPageState extends State<PlayerPage> {
   }
 
   void stop() async {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(25))),
+      width: 150,
+      content: Text(
+        'noise off',
+        textAlign: TextAlign.center,
+      ),
+      duration: Duration(seconds: 1),
+    ));
+
     try {
       if (_noiseSubscription != null) {
         _noiseSubscription!.cancel();
@@ -159,25 +185,40 @@ class _PlayerPageState extends State<PlayerPage> {
     }
   }
 
-  List<Widget> getContent() => <Widget>[
-        Container(
-            margin: EdgeInsets.all(25),
-            child: Column(children: [
-              Container(
-                child: Text(_isRecording ? "Mic: ON" : "Mic: OFF",
-                    style: TextStyle(fontSize: 25, color: Colors.blue)),
-                margin: EdgeInsets.only(top: 20),
-              )
-            ])),
-      ];
-
   //
+
+  Future volumeAutoControl() async {
+    //
+    double currentVol = _player.volume;
+
+    if (_isRecording) {
+      double autoVol = 0.1;
+      await Future.delayed(Duration(microseconds: 100), () {
+        autoVol = noiseValue * 0.007;
+      });
+
+      print('volume changed');
+      print(autoVol);
+
+      _player.setVolume(autoVol);
+
+      if (autoVol <= 0) {
+        await _player.setVolume(0.2);
+      } else if (autoVol >= 1) {
+        await _player.setVolume(0.9);
+      } else {
+        await _player.setVolume(autoVol);
+      }
+    } else if (!_isRecording) {
+      _player.setVolume(currentVol);
+    }
+  }
 
   final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
-    // final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.of(context).size;
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -225,6 +266,25 @@ class _PlayerPageState extends State<PlayerPage> {
                 ),
                 onPressed: () {
                   print('category button pressed');
+                  showModalBottomSheet(
+                      isDismissible: true,
+                      enableDrag: true,
+                      backgroundColor: Colors.transparent,
+                      context: context,
+                      builder: (context) {
+                        return Container(
+                          alignment: Alignment.center,
+                          height: size.height,
+                          width: size.width,
+                          child: Column(
+                            children: [
+                              categoryBtn(btnName: 'Jazz', onTap: () {}),
+                              categoryBtn(btnName: 'Classic', onTap: () {}),
+                              categoryBtn(btnName: 'Pop', onTap: () {}),
+                            ],
+                          ),
+                        );
+                      });
                 },
               ),
 
@@ -325,7 +385,6 @@ class _PlayerPageState extends State<PlayerPage> {
                     onTap: () {
                       _isRecording ? stop() : start();
                     },
-
                     child: Stack(
                       alignment: Alignment.center,
                       children: <Widget>[
@@ -346,9 +405,6 @@ class _PlayerPageState extends State<PlayerPage> {
                         )
                       ],
                     ),
-                    // IconButton(icon: Image.asset('assets/violetColorBtn.png'),iconSize: 20, onPressed: (){
-
-                    // ElevatedButton(child: Text('noise'),onPressed: (){}, ),
                   ),
                 ],
               ),
