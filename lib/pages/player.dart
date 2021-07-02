@@ -7,6 +7,7 @@ import 'package:bi_whitenoise/components/music_list.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:noise_meter/noise_meter.dart';
 import 'package:rxdart/rxdart.dart';
@@ -25,8 +26,15 @@ class _PlayerPageState extends State<PlayerPage> {
   double noiseValue = 0.0;
 
 //
-
+  bool _canVibrate = true;
+  final Iterable<Duration> pauses = [
+    const Duration(milliseconds: 50),
+    // const Duration(milliseconds: 1000),
+    // const Duration(milliseconds: 500),
+  ];
   late AudioPlayer _player;
+  String _category = 'Jazz';
+  bool _playlistLoading = false;
 
   final _playlist = ConcatenatingAudioSource(children: [
     ClippingAudioSource(
@@ -88,6 +96,49 @@ class _PlayerPageState extends State<PlayerPage> {
     ),
   ]);
 
+// playlist2
+  final _playlist2 = ConcatenatingAudioSource(children: [
+    ClippingAudioSource(
+      start: Duration(seconds: 60),
+      end: Duration(seconds: 90),
+      child: AudioSource.uri(
+          Uri.parse("https://www.rainymood.com/audio1112/0.m4a")),
+      tag: AudioMetadata(
+        album: "Science Friday",
+        title: "A Salute ",
+        artwork:
+            "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTJ8fG11c2ljJTIwY292ZXJ8ZW58MHx8MHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60",
+      ),
+    ),
+    AudioSource.uri(
+      Uri.parse("https://www.rainymood.com/audio1112/0.m4a"),
+      tag: AudioMetadata(
+        album: "Science Friday",
+        title: "From Cat",
+        artwork:
+            "https://images.unsplash.com/photo-1512511708753-3150cd2ec8ee?ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8cmFpbnxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60",
+      ),
+    ),
+    AudioSource.uri(
+      Uri.parse("asset:///assets/Ocean-10min.mp3"),
+      tag: AudioMetadata(
+        album: "Public Domain",
+        title: "Ocean",
+        artwork:
+            "https://images.unsplash.com/photo-1468581264429-2548ef9eb732?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8b2NlYW58ZW58MHx8MHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60",
+      ),
+    ),
+    AudioSource.uri(
+      Uri.parse("asset:///assets/Ocean-10min.mp3"),
+      tag: AudioMetadata(
+        album: "Public Domain",
+        title: "Nature Sounds",
+        artwork:
+            "https://images.unsplash.com/photo-1529540005439-99b94814332a?ixid=MnwxMjA3fDB8MHxzZWFyY2h8ODV8fHNpbXBsZXxlbnwwfHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=60",
+      ),
+    ),
+  ]);
+
   @override
   void initState() {
     super.initState();
@@ -113,6 +164,10 @@ class _PlayerPageState extends State<PlayerPage> {
       // Catch load errors: 404, invalid url ...
       print("Error loading playlist: $e");
     }
+    bool canVibrate = await Vibrate.canVibrate;
+    setState(() {
+      _canVibrate = canVibrate;
+    });
   }
 
   @override
@@ -245,7 +300,7 @@ class _PlayerPageState extends State<PlayerPage> {
               // Category Button
               OutlinedButton(
                 child: Text(
-                  'jazz',
+                  _category,
                   style: TextStyle(
                     fontFamily: 'MontserratExtraBoldItalic',
                     fontWeight: FontWeight.bold,
@@ -269,18 +324,92 @@ class _PlayerPageState extends State<PlayerPage> {
                   showModalBottomSheet(
                       isDismissible: true,
                       enableDrag: true,
+                      isScrollControlled: true,
                       backgroundColor: Colors.transparent,
                       context: context,
                       builder: (context) {
                         return Container(
                           alignment: Alignment.center,
-                          height: size.height,
-                          width: size.width,
-                          child: Column(
+
+                          // height: size.height,
+                          child: Stack(
                             children: [
-                              categoryBtn(btnName: 'Jazz', onTap: () {}),
-                              categoryBtn(btnName: 'Classic', onTap: () {}),
-                              categoryBtn(btnName: 'Pop', onTap: () {}),
+                              GridView.count(
+                                // padding: EdgeInsets.symmetric(vertical: 0, horizontal: 50),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: size.height * 0.25,
+                                  horizontal: size.width * 0.15,
+                                ),
+
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 30.0,
+                                crossAxisSpacing: 30.0,
+
+                                children: [
+                                  categoryBtn(
+                                    btnName: 'Jazz',
+                                    onTap: () async {
+                                      _playlistLoading = true;
+                                      await _player
+                                          .setAudioSource(_playlist)
+                                          .then((value) {
+                                        _playlistLoading = false;
+                                      });
+
+                                      setState(() {
+                                        _category = 'Jazz';
+                                      });
+                                      if (_playlistLoading) {
+                                        // showDialog(context: context,
+                                        //  builder: Container(
+                                        //    child: CircularProgressIndicator(),
+                                        //  ))
+                                        print('Playlist2 loading...');
+                                      }
+                                      Navigator.pop(context);
+                                      !_canVibrate
+                                          ? null
+                                          : Vibrate.feedback(
+                                              FeedbackType.impact);
+                                      // Vibrate.vibrate();
+                                      // Vibrate.vibrateWithPauses(pauses);
+                                    },
+                                  ),
+                                  categoryBtn(
+                                    btnName: 'Classic',
+                                    onTap: () async {
+                                      await _player.setAudioSource(_playlist2);
+                                      setState(() {
+                                        _category = 'Classic';
+                                      });
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                  categoryBtn(
+                                    btnName: 'Pop',
+                                    onTap: () {
+                                      setState(() {
+                                        _category = 'Pop';
+                                      });
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ],
+                              ),
+                              InkWell(
+                                child: Container(
+                                  padding: EdgeInsets.all(50),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 40,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                onTap: () {
+                                  print('close button');
+                                  Navigator.pop(context);
+                                },
+                              ),
                             ],
                           ),
                         );
@@ -402,7 +531,7 @@ class _PlayerPageState extends State<PlayerPage> {
                         Text(
                           noiseValue.toInt().toString(),
                           textAlign: TextAlign.center,
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -448,9 +577,14 @@ class ControlButtons extends StatelessWidget {
                 processingState == ProcessingState.buffering) {
               return Container(
                 margin: EdgeInsets.all(8.0),
-                width: 64.0,
-                height: 64.0,
-                child: CircularProgressIndicator(),
+                width: 54.0,
+                height: 54.0,
+                child: CircularProgressIndicator(
+                  strokeWidth: 6,
+                  backgroundColor: ColorData.primaryColor,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      ColorData.primaryStrongColor),
+                ),
               );
             } else if (playing != true) {
               return IconButton(

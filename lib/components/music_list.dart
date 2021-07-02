@@ -2,11 +2,10 @@ import 'package:bi_whitenoise/data/color.dart';
 import 'package:flutter/material.dart';
 
 Widget customListTile(
-    {String title = "", String desc = "", String cover = "", color,onTap}) {
+    {String title = "", String desc = "", String cover = "", color, onTap}) {
   return InkWell(
     highlightColor: ColorData.primaryColor,
     splashColor: ColorData.primaryStrongColor,
-    
     onTap: onTap,
     child: Container(
       color: color,
@@ -31,7 +30,6 @@ Widget customListTile(
             children: [
               Text(
                 title,
-                
                 textAlign: TextAlign.left,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
@@ -40,7 +38,6 @@ Widget customListTile(
                   fontSize: 16.0,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Segoe',
-
                 ),
               ),
               SizedBox(
@@ -50,12 +47,12 @@ Widget customListTile(
                 desc,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.left,
-
                 style: TextStyle(
-                  color: Colors.grey, fontSize: 14.0,
+                  color: Colors.grey,
+                  fontSize: 14.0,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Segoe',
-                  ),
+                ),
               ),
             ],
           )

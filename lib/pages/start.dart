@@ -12,6 +12,8 @@ class StartPage extends StatefulWidget {
 class _StartPageState extends State<StartPage> {
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+
     return Scaffold(
       body: Container(
           color: ColorData.bgColor,
@@ -23,23 +25,34 @@ class _StartPageState extends State<StartPage> {
                 ),
 
                 Container(
-                    margin: EdgeInsets.all(60.0),
-                    child: Icon(
-                      Icons.brightness_2,
-                      size: 100,
-                      color: Colors.yellow[100],
-                    )),
+                  margin: EdgeInsets.all(60.0),
+                  width: size.width * 0.9,
+                  child: Image.asset('assets/lottie/whitenoise_gif.gif'),
+                  // Lottie.asset(
+                  //   "assets/lottie/whitenoise1.json",
+                  //   // repeat: false,
+                  // ),
+
+                  // Icon(
+                  //   Icons.brightness_2,
+                  //   size: 100,
+                  //   color: Colors.yellow[100],
+                  // ),
+                ),
                 SizedBox(
                   height: 50,
                 ),
-                Container(
-                  child: Text('WhiteNoise',
-                      style: TextStyle(color: Colors.white,
-                  fontFamily: 'MontserratExtraBold',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20.0,
-                ),),
-                ),
+                // Container(
+                //   child: Text(
+                //     'WhiteNoise',
+                //     style: TextStyle(
+                //       color: Colors.white,
+                //       fontFamily: 'MontserratExtraBold',
+                //       fontWeight: FontWeight.bold,
+                //       fontSize: 20.0,
+                //     ),
+                //   ),
+                // ),
 
                 SizedBox(
                   height: 30,
@@ -50,7 +63,7 @@ class _StartPageState extends State<StartPage> {
                     child:
                         Lottie.asset("assets/lottie/play-button-on-hover.json"),
                     onTap: () {
-                      Get.to(()=>PlayerPage());
+                      Get.to(() => PlayerPage());
                     },
                   ),
                 ),

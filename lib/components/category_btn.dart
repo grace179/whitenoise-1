@@ -5,7 +5,7 @@ Widget categoryBtn({String btnName = "", onTap}) {
   return InkWell(
     onTap: onTap,
     child: Container(
-      padding: EdgeInsets.all(10),
+      // padding: EdgeInsets.all(10),
 
       child: Container(
         height: 100.0,
@@ -19,7 +19,7 @@ Widget categoryBtn({String btnName = "", onTap}) {
             fontFamily: 'MontserratExtraBoldItalic',
             fontWeight: FontWeight.bold,
             fontStyle: FontStyle.italic,
-            fontSize: 20.0,
+            fontSize: 24.0,
           ),
         ),
         decoration: BoxDecoration(

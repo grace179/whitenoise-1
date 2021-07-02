@@ -9,7 +9,7 @@ void main() {
 class WhiteNoiseApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp (
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       home: StartPage(),
     );
