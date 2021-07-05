@@ -1,4 +1,5 @@
 import 'package:bi_whitenoise/pages/player.dart';
+import 'package:bi_whitenoise/src/app.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:lottie/lottie.dart';
@@ -27,11 +28,12 @@ class _StartPageState extends State<StartPage> {
                 Container(
                   margin: EdgeInsets.all(60.0),
                   width: size.width * 0.9,
-                  child: Image.asset('assets/lottie/whitenoise_gif.gif'),
-                  // Lottie.asset(
-                  //   "assets/lottie/whitenoise1.json",
-                  //   // repeat: false,
-                  // ),
+                  child: 
+                  // Image.asset('assets/lottie/whitenoise_gif.gif'),
+                  Lottie.asset(
+                    "assets/lottie/whitenoise1.json",
+                    // repeat: false,
+                  ),
 
                   // Icon(
                   //   Icons.brightness_2,
@@ -42,31 +44,21 @@ class _StartPageState extends State<StartPage> {
                 SizedBox(
                   height: 50,
                 ),
-                // Container(
-                //   child: Text(
-                //     'WhiteNoise',
-                //     style: TextStyle(
-                //       color: Colors.white,
-                //       fontFamily: 'MontserratExtraBold',
-                //       fontWeight: FontWeight.bold,
-                //       fontSize: 20.0,
-                //     ),
-                //   ),
-                // ),
-
+                App(),
+               
                 SizedBox(
                   height: 30,
                 ),
-                SizedBox(
-                  width: 150,
-                  child: InkWell(
-                    child:
-                        Lottie.asset("assets/lottie/play-button-on-hover.json"),
-                    onTap: () {
-                      Get.to(() => PlayerPage());
-                    },
-                  ),
-                ),
+                // SizedBox(
+                //   width: 150,
+                //   child: InkWell(
+                //     child:
+                //         Lottie.asset("assets/lottie/play-button-on-hover.json"),
+                //     onTap: () {
+                //       Get.to(() => PlayerPage());
+                //     },
+                //   ),
+                // ),
                 // ),
               ],
               mainAxisAlignment: MainAxisAlignment.center,
