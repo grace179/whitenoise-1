@@ -1,4 +1,5 @@
 import 'package:bi_whitenoise/pages/player.dart';
+import 'package:bi_whitenoise/pages/splash.dart';
 import 'package:bi_whitenoise/src/app.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -10,24 +11,39 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
+  bool _loading = true;
+
+  @override
+  void initState() {
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        _loading = false;
+      });
+    });
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
     return SafeArea(
-      child: Container(
-        height: size.height,
-        color: ColorData.bgColor,
-          child: Column(
-            children: [
-              Lottie.asset(
-                "assets/lottie/whitenoise1.json",
-                // repeat: false,
+      child: _loading
+          ? SplashWidget()
+          : Container(
+              // height: size.height,
+              color: ColorData.bgColor,
+              child: Column(
+                children: [
+                  Lottie.asset(
+                    "assets/lottie/whitenoise-lottie.json",
+                    // repeat: false,
+                  ),
+                  App(),
+                ],
               ),
-              App(),
-            ],
-          ),
-      ),
+            ),
     );
   }
 }
