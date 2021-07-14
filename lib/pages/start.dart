@@ -28,20 +28,27 @@ class _StartPageState extends State<StartPage> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
-    return SafeArea(
-      child: _loading
+    return Scaffold(
+      backgroundColor: ColorData.bgColor,
+      body: _loading
           ? SplashWidget()
-          : Container(
-              // height: size.height,
-              color: ColorData.bgColor,
-              child: Column(
-                children: [
-                  Lottie.asset(
-                    "assets/lottie/whitenoise-lottie.json",
-                    // repeat: false,
-                  ),
-                  App(),
-                ],
+          : SafeArea(
+              child: Container(
+                // height: size.height,
+                color: ColorData.bgColor,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  // mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 100,
+                      child: Lottie.asset(
+                        "assets/lottie/whitenoise-lottie.json",
+                      ),
+                    ),
+                    App(),
+                  ],
+                ),
               ),
             ),
     );

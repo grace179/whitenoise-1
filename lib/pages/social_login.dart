@@ -1,3 +1,4 @@
+// @dart=2.9
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -26,23 +27,26 @@ class SocialLogin extends StatelessWidget {
     return Container(
       // color: ColorData.bg,
       child: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          OutlinedButton(
-            child: Text(
-              'Google 로 시작하기',
-              style: TextStyle(
-                color: Colors.white,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            OutlinedButton(
+              child: Text(
+                'Google 로 시작하기',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
               ),
-            ),
-            onPressed: () {
-              signInWithGoogle();
-            },
-          )
-        ],
-      )),
+              onPressed: () {
+                signInWithGoogle();
+                // 다른계정으로 로그인
+              },
+            )
+          ],
+        ),
+      ),
     );
   }
 }

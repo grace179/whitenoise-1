@@ -1,3 +1,4 @@
+// @dart=2.9
 import 'package:bi_whitenoise/pages/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,9 @@ class App extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             print('firebase load fail');
+            return Center(
+              child: Text('firebase load fail'),
+            );
           }
           if (snapshot.connectionState == ConnectionState.done) {
             print('firebase connect');
