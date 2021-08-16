@@ -6,6 +6,7 @@ class UserModel {
   late String lastLoginTime;
   late String birth;
   late String gender;
+  late String listener;
 
   UserModel({
     this.uid = "",
@@ -15,6 +16,7 @@ class UserModel {
     this.gender = "",
     this.createdTime = "",
     this.lastLoginTime = "",
+    this.listener = "",
   });
 
   UserModel.clone(UserModel user)
@@ -26,6 +28,7 @@ class UserModel {
           lastLoginTime: user.lastLoginTime,
           birth: user.birth,
           gender: user.gender,
+          listener: user.listener,
         );
 
   UserModel.fromJson(Map<String, dynamic> json, String docId)
@@ -35,7 +38,8 @@ class UserModel {
         birth = json["birth"] as String,
         gender = json["gender"] as String,
         createdTime = json["createdTime"] as String,
-        lastLoginTime = json["lastLoginTime"] as String;
+        lastLoginTime = json["lastLoginTime"] as String,
+        listener = json["listner"] as String;
 
   Map<String, dynamic> toMap() {
     return {
@@ -46,6 +50,7 @@ class UserModel {
       "lastLoginTime": this.lastLoginTime,
       "birth": this.birth,
       "gender": this.gender,
+      "listener": this.listener,
     };
   }
 }

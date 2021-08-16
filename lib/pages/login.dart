@@ -13,9 +13,30 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final _userController = Get.put(UserController());
+
+  @override
+  void initState() {
+    print('user info check');
+    print(_userController.userProfile.value.birth);
+    print(_userController.userInfoCheck);
+    // print(_userInfo);
+// if(_userInfo == true){
+//   Get.to(PlayerPage);
+// }
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // _userController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.of(context).size;
+    // userInfoCheck();
 
     return StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
@@ -25,52 +46,15 @@ class _LoginState extends State<Login> {
         if (!snapshot.hasData) {
           return SocialLogin();
         } else {
-          return Container(
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        text: '${snapshot.data.displayName}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 18,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: ' 님 반갑습니다.',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    OutlinedButton(
-                      onPressed: () {
-                        FirebaseAuth.instance.signOut();
-                      },
-                      child: Text(
-                        'LogOut',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                // 회원정보 입력창 생년월일, 성별
-                UserInfoForm(),
-              ],
+          return Expanded(
+            child: Container(
+              height: size.height * 0.95,
+              // alignment: Alignment.center,
+              child: Obx(
+                () => _userController.userInfoCheck.value
+                    ? PlayerPage()
+                    : UserInfoForm(),
+              ),
             ),
           );
         }
